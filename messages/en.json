@@ -1,0 +1,12 @@
+{
+  "HomePage": {
+    "title": "Foot Ulcer Prediction & AI Assistance",
+    "description": "Upload an image for AI-powered ulcer detection and chat for insights.",
+    "upload_prompt": "Drag & Drop or Click to Upload",
+    "chat_title": "Chat with AI Assistant",
+    "chat_description": "Ask questions about foot ulcers and receive AI-powered insights.",
+    "no_messages": "No messages yet. Start the conversation!",
+    "placeholder": "Type a message...",
+    "upload_success": "File uploaded successfully!"
+  }
+}
