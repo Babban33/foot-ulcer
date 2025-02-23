@@ -1,0 +1,30 @@
+# Ignore virtual environments
+*/venv/
+*/.env/
+Backend/app/server/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+*.iml
+
+# Ignore dependencies
+Frontend/node_modules/
+
+# Ignore build files
+Frontend/.next/
+Frontend/out/
+
+# Ignore Docker-related files
+Backend/.dockerignore
