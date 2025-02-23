@@ -4,19 +4,26 @@ import { useState } from "react";
 import Image from "next/image";
 import { useDropzone } from "react-dropzone";
 import { Card, CardContent } from "@/components/ui/card";
-import { UploadCloud, X } from "lucide-react";
+import { Loader2, UploadCloud, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ChatScreen } from "@/components/ChatScreen";
 import { Button } from "@/components/ui/button";
+import axios from 'axios';
 
 export default function UploadPage() {
-    const [file, setFile] = useState<string | null>(null);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [file, setFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [prediction, setPrediction] = useState<number | null>(null);
     const t = useTranslations("HomePage");
 
     const onDrop = (acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0];
         if (selectedFile) {
-        setFile(URL.createObjectURL(selectedFile));
+            setFile(selectedFile);
+            setPreview(URL.createObjectURL(selectedFile));
+            handlePrediction(selectedFile);
         }
     };
 
@@ -24,6 +31,33 @@ export default function UploadPage() {
         onDrop,
         accept: { "image/*": [] },
     });
+
+    const handlePrediction = async (imageFile: File)=>{
+        setIsLoading(true);
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        try{
+            const response = await axios.post("http://localhost:8000/predict", formData,{
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                }
+            });
+            if(response.data.success){
+                setPrediction(response.data.prediction);
+            } else{
+                console.error("Prediction failed", response.data.error);
+            }
+        } catch (error){
+            console.error("Error Uploading file", error);
+        } finally{
+            setIsLoading(false);
+        }
+    }
+    const reset = ()=>{
+        setFile(null);
+        setPreview(null);
+        setPrediction(null);
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex flex-col justify-center items-center p-6">
@@ -55,24 +89,34 @@ export default function UploadPage() {
                             </p>
                             <input {...getInputProps()} />
                         </div>
-                        {file && (
+                        {preview && (
                             <div className="relative mt-6 animate-fade-in">
                                 <Image
-                                    src={file}
+                                    src={preview}
                                     alt="Uploaded Preview"
                                     className="w-full h-48 object-cover rounded-xl border border-gray-700 shadow-md"
                                     width={400}
                                     height={192}
                                 />
                                 <Button
-                                    onClick={() => setFile(null)}
+                                    onClick={reset}
                                     variant="destructive"
                                     size="icon"
                                     className="absolute top-2 right-2 rounded-full bg-red-500 hover:bg-red-600"
                                 >
                                     <X className="h-4 w-4" />
                                 </Button>
+                                {isLoading && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-xl">
+                                        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+                                    </div>
+                                )}
                             </div>
+                        )}
+                        {prediction !== null && !isLoading && (
+                            <p className="mt-4 text-center text-lg font-medium text-white">
+                                Prediction: {prediction === 1 ? "Normal (Healthy Skin)" : "Ulcer is present"}
+                            </p>
                         )}
                     </CardContent>
                 </Card>
