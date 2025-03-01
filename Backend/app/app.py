@@ -1,5 +1,8 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import HTTPException
+from pydantic import BaseModel
+from google import genai
 from PIL import Image
 import torch
 import timm
@@ -7,6 +10,7 @@ import torchvision.transforms as transforms
 import io
 
 app = FastAPI()
+client = genai.Client(api_key="")
 
 app.add_middleware(
     CORSMiddleware,
@@ -16,7 +20,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MODEL_PATH = "./routes/model.pth"
+MODEL_PATH = "C:\Users\athar\OneDrive\Desktop\Atharva\Github\Frelance\foot-ulcer\Backend\app\model\model.pth"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = timm.create_model("vit_base_patch16_224", pretrained=False, num_classes=2)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
@@ -48,3 +52,23 @@ async def predict(file: UploadFile = File(...)):
     
     except Exception as e:
         return {"prediction": None, "success": False, "error": str(e)}
+    
+
+# Define request model
+class ChatRequest(BaseModel):
+    question: str
+    language: str
+
+@app.post("/chat")
+def chat(request: ChatRequest):
+    # Check if the question is related to foot ulcers
+    if "foot ulcer" not in request.question.lower():
+        raise HTTPException(status_code=400, detail="Only questions about foot ulcers are allowed.")
+    
+    # Generate response from Gemini in the specified language
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=f"Respond in {request.language}: {request.question}"
+    )
+    
+    return {"message": response.text}
