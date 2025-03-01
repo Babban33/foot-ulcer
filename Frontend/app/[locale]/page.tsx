@@ -9,6 +9,8 @@ import { useTranslations } from "next-intl";
 import { ChatScreen } from "@/components/ChatScreen";
 import { Button } from "@/components/ui/button";
 import axios from 'axios';
+import { useParams, useRouter } from "next/navigation";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function UploadPage() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -17,6 +19,9 @@ export default function UploadPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [prediction, setPrediction] = useState<number | null>(null);
     const t = useTranslations("HomePage");
+    const router = useRouter();
+    const params = useParams();
+    const locale = params.locale as string;
 
     const onDrop = (acceptedFiles: File[]) => {
         const selectedFile = acceptedFiles[0];
@@ -58,6 +63,10 @@ export default function UploadPage() {
         setPreview(null);
         setPrediction(null);
     }
+
+    const switchLanguage = (newLocale: string) => {
+        router.push(`/${newLocale}`);
+    };
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex flex-col justify-center items-center p-6">
@@ -120,6 +129,42 @@ export default function UploadPage() {
                         )}
                     </CardContent>
                 </Card>
+                <div className="flex justify-center mt-4">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="bg-gray-800/50 hover:text-white border-gray-700 text-white hover:bg-gray-700/50 hover:border-blue-500 transition-all duration-300 shadow-md"
+                            >
+                                {locale === "en" ? "English" : locale === "hi" ? "Hindi" : "Marathi"}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-gray-800/90 backdrop-blur-sm border-gray-700 text-white shadow-xl rounded-xl w-56">
+                            <DropdownMenuLabel className="text-gray-300 font-medium">
+                                Select Language
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator className="bg-gray-700" />
+                            <DropdownMenuItem
+                                onClick={() => switchLanguage("en")}
+                                className="text-white cursor-pointer hover:bg-blue-500/20 hover:text-white focus:bg-blue-500/20 focus:text-white transition-all duration-200"
+                            >
+                                English
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => switchLanguage("hi")}
+                                className="text-white cursor-pointer hover:bg-blue-500/20 hover:text-white focus:bg-blue-500/20 focus:text-white transition-all duration-200"
+                            >
+                                Hindi
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={() => switchLanguage("mr")}
+                                className="text-white cursor-pointer hover:bg-blue-500/20 hover:text-white focus:bg-blue-500/20 focus:text-white transition-all duration-200"
+                            >
+                                Marathi
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
             </div>
             <ChatScreen />
         </div>

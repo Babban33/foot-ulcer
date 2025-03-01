@@ -23,14 +23,15 @@ export const metadata: Metadata = {
 
 export default async function RootLayout({
   children,
-  params
+  params,
 }: {
   children: React.ReactNode;
-  params: {locale: string};
+  params: Promise<{ locale: string }>;
 }) {
-  const param = await params;
-  const locale = param.locale;
-  if(!routing.locales.includes(locale as 'en' | 'hi' | 'mr')){
+  const resolvedParams = await params;
+  const locale = resolvedParams.locale;
+
+  if (!routing.locales.includes(locale as "en" | "hi" | "mr")) {
     notFound();
   }
   const messages = await getMessages();
@@ -41,9 +42,7 @@ export default async function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <NextIntlClientProvider messages={messages}>
-          <div className="bg-black">
-          {children}
-          </div>
+          <div className="bg-black">{children}</div>
         </NextIntlClientProvider>
       </body>
     </html>
