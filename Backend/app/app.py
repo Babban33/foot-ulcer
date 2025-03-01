@@ -8,9 +8,13 @@ import torch
 import timm
 import torchvision.transforms as transforms
 import io
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
-client = genai.Client(api_key="")
+client = genai.Client(api_key=os.getenv("LLM_API"))
 
 app.add_middleware(
     CORSMiddleware,
