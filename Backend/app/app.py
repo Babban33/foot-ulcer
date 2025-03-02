@@ -10,6 +10,7 @@ import torchvision.transforms as transforms
 import io
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 
 load_dotenv()
 
@@ -24,7 +25,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-MODEL_PATH = "C:\Users\athar\OneDrive\Desktop\Atharva\Github\Frelance\foot-ulcer\Backend\app\model\model.pth"
+current_dir = os.curdir()
+
+MODEL_PATH = os.path.join(current_dir, "/routes/model.pth")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = timm.create_model("vit_base_patch16_224", pretrained=False, num_classes=2)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
