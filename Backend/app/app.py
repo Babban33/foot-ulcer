@@ -2,7 +2,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import HTTPException
 from pydantic import BaseModel
-from google import genai
+from google.genai import Client
 from PIL import Image
 import torch
 import timm
@@ -10,12 +10,14 @@ import torchvision.transforms as transforms
 import io
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 
 load_dotenv()
 
+API_KEY = os.getenv("LLM_API")
+client = Client(api_key=API_KEY)
+
 app = FastAPI()
-client = genai.Client(api_key=os.getenv("LLM_API"))
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -25,9 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-current_dir = os.curdir()
+current_dir = os.getcwd()
 
-MODEL_PATH = os.path.join(current_dir, "/routes/model.pth")
+MODEL_PATH = os.path.join(current_dir, "routes", "model.pth")
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model = timm.create_model("vit_base_patch16_224", pretrained=False, num_classes=2)
 model.load_state_dict(torch.load(MODEL_PATH, map_location=device))
