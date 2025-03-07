@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { useDropzone } from "react-dropzone";
 import { Card, CardContent } from "@/components/ui/card";
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import axios from 'axios';
 import { useParams, useRouter } from "next/navigation";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import dynamic from "next/dynamic";
 
 export default function UploadPage() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -68,9 +69,19 @@ export default function UploadPage() {
         router.push(`/${newLocale}`);
     };
 
+    const Map = useMemo(() => dynamic(
+        () => import('@/components/Map'),
+        { 
+          loading: () => <p>A map is loading</p>,
+          ssr: false
+        }
+    ), [])
+
+    const nagpurPosition: [number, number] = [21.1458, 79.0882];
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white flex flex-col justify-center items-center p-6">
-            <div className="max-w-2xl w-full space-y-8">
+            <div className="max-w-2xl w-full space-y-8 min-h-svh flex flex-col justify-center items-center">
                 <div className="text-center space-y-4 animate-fade-in">
                     <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
                         {t("title")}
@@ -80,7 +91,7 @@ export default function UploadPage() {
                     </p>
                 </div>
 
-                <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300">
+                <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-300 w-full">
                     <CardContent className="p-6">
                         <div
                             {...getRootProps()}
@@ -166,6 +177,18 @@ export default function UploadPage() {
                     </DropdownMenu>
                 </div>
             </div>
+
+            <section className="mt-8 space-y-4 max-w-2xl w-full mx-auto">
+                <h2 className="text-2xl font-bold text-center bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                    Location - Nagpur, Maharashtra
+                </h2>
+                <Card className="bg-gray-800/50 backdrop-blur-sm border-gray-700 shadow-xl">
+                    <CardContent className="p-6">
+                        <Map position={nagpurPosition} zoom={12} />
+                    </CardContent>
+                </Card>
+            </section>
+
             <ChatScreen />
         </div>
     );
