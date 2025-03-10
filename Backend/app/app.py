@@ -75,9 +75,11 @@ def chat(request: ChatRequest):
         raise HTTPException(status_code=400, detail="Only questions about foot ulcers are allowed.")
     
     # Generate response from Gemini in the specified language
+    prompt = f"Answer the following question strictly in {request.language}, regardless of the input language:\n{request.question}"
+    
     response = client.models.generate_content(
         model="gemini-2.0-flash",
-        contents=f"Respond in {request.language}: {request.question}"
+        contents=prompt
     )
     
     return {"message": response.text}

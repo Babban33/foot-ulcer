@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import ReactMarkdown, { Components } from "react-markdown";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "./ui/dropdown-menu";
 
 interface Message {
     id: string;
@@ -17,6 +18,8 @@ interface Message {
     isUser: boolean;
     timestamp: string;
 }
+
+const languages = [ "English", "Hindi", "Marathi"];
 
 export function ChatScreen() {
     const [messages, setMessages] = React.useState<Message[]>([
@@ -29,6 +32,7 @@ export function ChatScreen() {
     ]);
     const [input, setInput] = React.useState("");
     const [isTyping, setIsTyping] = React.useState(false);
+    const [selectedLanguage, setSelectedLanguage] = React.useState("English");
     const scrollRef = React.useRef<HTMLDivElement>(null);
 
     const handleSend = async () => {
@@ -48,7 +52,7 @@ export function ChatScreen() {
         try {
             const response = await axios.post("http://127.0.0.1:8000/chat", {
                 question: userMessage.content,
-                language: "english",
+                language: selectedLanguage,
             });
 
             const botMessage: Message = {
@@ -99,9 +103,37 @@ export function ChatScreen() {
                             <AvatarFallback className="bg-transparent text-white">SA</AvatarFallback>
                         </Avatar>
                         <div>
-                            <h2 className="text-xl font-semibold tracking-tight">Stack AI</h2>
+                            <span className="flex flex-row gap-4 justify-start items-center">
+                                <h2 className="text-xl font-semibold tracking-tight">Stack AI</h2>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="bg-gray-800/50 hover:text-white border-gray-700 text-white hover:bg-gray-700/50 hover:border-blue-500 transition-all duration-300 shadow-md"
+                                        >
+                                            {selectedLanguage}
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="bg-gray-800/90 backdrop-blur-sm border-gray-700 text-white shadow-xl rounded-xl w-56">
+                                        <DropdownMenuLabel className="text-gray-300 font-medium">
+                                            Select Language
+                                        </DropdownMenuLabel>
+                                        <DropdownMenuSeparator className="bg-gray-700" />
+                                        {languages.map((lang) => (
+                                            <DropdownMenuItem
+                                                key={lang}
+                                                className="text-white cursor-pointer hover:bg-blue-500/20 hover:text-white focus:bg-blue-500/20 focus:text-white transition-all duration-200"
+                                                onClick={() => setSelectedLanguage(lang)}
+                                            >
+                                                {lang}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </span>
                             <p className="text-sm text-gray-400">Your intelligent healthcare assistant</p>
                         </div>
+
                     </DialogTitle>
 
                     <ScrollArea ref={scrollRef} className="flex-1 px-4">
